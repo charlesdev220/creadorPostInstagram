@@ -201,6 +201,7 @@ Crear descripciones visuales reutilizables para marketing, branding y análisis 
         const exactColors = JSON.stringify(parsedCurrentJson.color_palette_and_texture, null, 2);
         const newPose = JSON.stringify(parsedCurrentJson.main_subject, null, 2);
 
+        /*
         console.log("Variación - Paso 2: Generando imagen final inyectando el estilo base...");
 
         // Usaremos generateContent pasándole todas las partes en base64 de manera oficial
@@ -274,11 +275,13 @@ Crear descripciones visuales reutilizables para marketing, branding y análisis 
         const finalImageSrc = generatedBase64.startsWith('data:image')
             ? generatedBase64
             : `data:image/jpeg;base64,${generatedBase64}`;
+        */
 
         return NextResponse.json({
             success: true,
-            generatedImage: finalImageSrc,
-            message: 'Variación procesada exitosamente con Nano Banana Pro.'
+            generatedImage: null,
+            variationAnalysis: parsedCurrentJson,
+            message: 'Variación procesada exitosamente (Generación de imagen desactivada).'
         });
 
     } catch (error: any) {

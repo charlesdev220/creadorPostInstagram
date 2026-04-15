@@ -173,6 +173,7 @@ Crear descripciones visuales reutilizables para marketing, branding y análisis 
     imageAnalysisJson = imageAnalysisJson.replace(/```[a-z]*\n/gi, '').replace(/```/gi, '').trim();
     console.log("Análisis JSON obtenido.");
 
+    /*
     console.log("Paso 2: Generando imagen final con Gemini Nano Banana Pro Preview...");
 
     // Usaremos generateContent pasándole todas las partes en base64 de manera oficial
@@ -236,6 +237,7 @@ Crear descripciones visuales reutilizables para marketing, branding y análisis 
     const finalImageSrc = generatedBase64.startsWith('data:image')
       ? generatedBase64
       : `data:image/jpeg;base64,${generatedBase64}`;
+    */
 
     // Parse the JSON safely to return to frontend
     let parsedJson = {};
@@ -247,9 +249,9 @@ Crear descripciones visuales reutilizables para marketing, branding y análisis 
 
     return NextResponse.json({
       success: true,
-      generatedImage: finalImageSrc,
+      generatedImage: null,
       analysisJson: parsedJson,
-      message: 'La imagen ha sido procesada exitosamente con Nano Banana Pro.'
+      message: 'Análisis de imagen completado exitosamente (Generación de imagen desactivada).'
     });
 
   } catch (error: any) {

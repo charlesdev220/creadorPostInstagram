@@ -21,9 +21,15 @@ export default function Home() {
   const [baseAnalysisJson, setBaseAnalysisJson] = useState<any>(null);
   const [showJson, setShowJson] = useState(false);
   const [batchReferences, setBatchReferences] = useState<string[]>([]);
-  const [batchResults, setBatchResults] = useState<{ url: string | null; status: 'loading' | 'done' | 'error'; errorMsg?: string }[]>([]);
+  const [batchResults, setBatchResults] = useState<{ url: string | null; analysis?: any; status: 'loading' | 'done' | 'error'; errorMsg?: string }[]>([]);
   const [isBatchGenerating, setIsBatchGenerating] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+
+  const copyToClipboard = (obj: any) => {
+    if (!obj) return;
+    navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
+    alert('JSON copiado al portapapeles');
+  };
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string | null>>, listSetter?: React.Dispatch<React.SetStateAction<string[]>>) => {
     if (e.target.files && e.target.files[0]) {
@@ -121,7 +127,7 @@ export default function Home() {
           if (!response.ok) {
             updated[i] = { url: null, status: 'error', errorMsg: data.error };
           } else {
-            updated[i] = { url: data.generatedImage, status: 'done' };
+            updated[i] = { url: data.generatedImage, analysis: data.variationAnalysis, status: 'done' };
           }
           return updated;
         });
@@ -283,6 +289,9 @@ export default function Home() {
                 <button onClick={() => setShowJson(!showJson)} className="glass-button" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}>
                   {showJson ? 'Ocultar JSON Base' : '👁️ Ver JSON Base Extraído'}
                 </button>
+                <button onClick={() => copyToClipboard(baseAnalysisJson)} className="glass-button" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}>
+                  📋 Copiar JSON Base
+                </button>
               </div>
 
               {showJson && (
@@ -328,12 +337,29 @@ export default function Home() {
                       <p style={{ marginBottom: '1rem', fontWeight: 600 }}>Variación #{i + 1}</p>
                       {res.status === 'loading' && <div className={styles.spinner} style={{ width: '30px', height: '30px', borderWidth: '3px' }}></div>}
                       {res.status === 'error' && <p style={{ color: 'red' }}>Error: {res.errorMsg}</p>}
-                      {res.status === 'done' && res.url && (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                          <img src={res.url} alt={`Resultado ${i}`} style={{ width: '100%', borderRadius: '8px', maxHeight: '400px', objectFit: 'contain', background: 'black', cursor: 'zoom-in' }} onClick={() => setFullScreenImage(res.url)} />
-                          <a href={res.url} download={`creador_instagram_batch_${i}.jpg`} className="glass-button" style={{ textDecoration: 'none' }}>
-                            📥 Descargar Variación
-                          </a>
+                      {res.status === 'done' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {res.url && <img src={res.url} alt={`Resultado ${i}`} style={{ width: '100%', borderRadius: '8px', maxHeight: '400px', objectFit: 'contain', background: 'black', cursor: 'zoom-in' }} onClick={() => setFullScreenImage(res.url)} />}
+                          
+                          {res.analysis && (
+                            <div style={{ width: '100%' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Análisis de Variación:</span>
+                                <button onClick={() => copyToClipboard(res.analysis)} className="glass-button" style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}>
+                                  📋 Copiar JSON
+                                </button>
+                              </div>
+                              <pre style={{ background: 'rgba(0,0,0,0.5)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.7rem', overflowX: 'auto', border: '1px solid var(--border-glass)' }}>
+                                {JSON.stringify(res.analysis, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+
+                          {res.url && (
+                            <a href={res.url} download={`creador_instagram_batch_${i}.jpg`} className="glass-button" style={{ textDecoration: 'none' }}>
+                              📥 Descargar Variación
+                            </a>
+                          )}
                         </div>
                       )}
                     </div>
