@@ -1,65 +1,160 @@
-# SDD Verify
+# SDD Verify — Paso 5
 
-Valida que la implementación cumple con las specs.  
+Verifica la implementación, cierra los tres depósitos de memoria y archiva.  
 Recibís: **$ARGUMENTS** (nombre del cambio).
 
+## Agentes responsables
+
+- **`qa-automation`** — compliance arquitectónico + tests unitarios Karma/Jasmine + completeness.
+- **`playwright-inspector`** — tests E2E Playwright + inspección visual en browser real.
+
 ## Pre-requisitos
-Leer `.sdd/changes/{change-name}/spec.md` y `tasks.md` (ambos obligatorios).  
-Leer el código implementado.
 
-## Qué hacer
+Leer obligatoriamente:
+- `.sdd/changes/{change-name}/1-init.md`
+- `.sdd/changes/{change-name}/2-spec.md`
+- `.sdd/changes/{change-name}/3-task.md`
+- `.sdd/changes/{change-name}/4-impl-log.md`
+- El código implementado en los archivos de `4-impl-log.md`
 
-1. **Completeness:** Verificar que todas las tareas en `tasks.md` estén marcadas `[x]`.
-2. **Correctness (estático):** Para cada requirement en `spec.md`, buscar evidencia en el código.
-3. **Testing:** Verificar que existen tests para cada scenario del spec.
-4. **Coherence:** Verificar que el código sigue las decisiones del `design.md`.
-5. Guardar en `.sdd/changes/{change-name}/verify-report.md`.
-6. Actualizar `state.md` → fase: `verify`.
-7. Si te encuentras issues corrigelas y notificalas
+## A. Completeness
 
-## Formato de `verify-report.md`
+- Todas las tareas en `3-task.md` marcadas `[x]`.
+- El propósito declarado en `1-init.md` puede declararse como cumplido.
+
+## B. Spec compliance
+
+- Para cada UC en `2-spec.md`, existe evidencia en el código **y** un test que lo verifica.
+- UCs de error path tienen su correspondiente manejo en effects/componentes.
+
+## C. Architecture compliance
+
+| Regla | Verificación |
+|-------|-------------|
+| `standalone: true` | Todos los componentes nuevos |
+| `OnPush` | `ChangeDetectionStrategy.OnPush` en todos los componentes |
+| Effects funcionales | `{ functional: true }`, sin clases `@Injectable` |
+| `input()` / `output()` modernos | Sin `@Input()` / `@Output()` legacy |
+| No inline templates | Ningún `.ts` contiene `template:` |
+| `inject()` | Sin constructor injection |
+| Control flow moderno | `@if` / `@for` — sin `*ngIf` / `*ngFor` |
+| JSDoc en `toSignal()` / `computed()` | Línea JSDoc obligatoria |
+| Constantes tipadas | Sin string literals de comparación |
+| Cero TODO/FIXME | Grep en archivos modificados |
+| SheetsApiService solo en Effects | Ningún componente llama directo |
+| SPREADSHEET_ID en env | No hardcodeado |
+
+## D. Actualizar `HISTORIAL_APRENDIZAJE.md`
+
+Solo si el veredicto es PASS o PASS WITH WARNINGS. Formato grep-friendly:
 
 ```markdown
-## Verification Report: {change-name}
+### [APREND-{NNN}] {Título breve}
+**Contexto:** `{archivo}` · {clase/servicio} · {método si aplica}
+**Patrón:** {bug | decision | warning | performance}
+**Síntoma:** {qué se observó}
+**Causa:** {por qué ocurrió}
+**Fix:** {qué lo resolvió}
+**Promovido a rule:** `{archivo:línea}` / No
+```
 
-### Completeness
-| Metric | Value |
-|--------|-------|
-| Total tasks | {N} |
-| Complete [x] | {N} |
-| Pending [ ] | {N} |
+## E. Actualizar `HISTORIAL_IMPLEMENTACION.md`
 
-### Spec Compliance Matrix
-| Requirement | Scenario | Evidence (file:line) | Status |
-|-------------|----------|---------------------|--------|
-| REQ-01 | {scenario} | `path/to/test.java:42` | ✅ COMPLIANT |
-| REQ-02 | {scenario} | (no test found) | ❌ UNTESTED |
+Solo si el veredicto es PASS o PASS WITH WARNINGS:
 
-### Architecture Compliance
-| Rule | Status | Notes |
-|------|--------|-------|
-| Hexagonal layers backend | ✅/❌ | |
-| Standalone components Angular | ✅/❌ | |
-| Contract-First (OpenAPI updated) | ✅/❌ | |
-| No @Autowired field injection | ✅/❌ | |
-| Pageable en colecciones | ✅/❌ | |
+```markdown
+### Qué hemos completado hasta ahora ({Título}):
+*Fase actual:* Fase X: ...
+*Estado actual:* Completado
+- ✔️ **{Nombre}:** {Descripción técnica en 1 línea}
+*Archivos modificados:* `{archivo1}`, `{archivo2}`
+*Deuda técnica documentada:* {...}
+*Próximos pasos:* {...}
+```
 
-### Issues Found
+## F. Detección de patrones → promoción a rules
+
+Cuando verify encuentra un WARNING o CRITICAL, preguntar:  
+**¿Este patrón ya apareció en `HISTORIAL_APRENDIZAJE.md` antes?**
+
+```
+Si el mismo patrón aparece 2+ veces en el historial:
+→ Promover a .claude/rules/{capa}.md como regla explícita
+→ Actualizar la entrada del historial: "Promovido a rule: sheets-api.md línea XX"
+→ Registrar en 5-verify-report.md bajo "Reglas promovidas"
+```
+
+## G. Actualizar `project-map.json`
+
+Siempre, si el veredicto es PASS o PASS WITH WARNINGS.  
+Solo se actualizan los nodos tocados por el cambio (listados en `4-impl-log.md`):
+
+```bash
+npx tsx frontend/tools/generate-project-map.ts --files archivo1.ts,archivo2.ts
+```
+
+Si el script falla → el archive no está completo.
+
+## H. Archive
+
+Mover `.sdd/changes/{change-name}/` a `.sdd/changes/archive/{change-name}/`.  
+Actualizar `state.md` → `Estado: Completado`.
+
+## Estructura de `5-verify-report.md`
+
+```markdown
+# Verify Report: {change-name}
+
+## Completeness
+| Métrica | Valor |
+|---------|-------|
+| Tareas totales | {N} |
+| Completadas [x] | {N} |
+| Pendientes [ ] | {N} |
+
+## Spec Compliance
+| UC | Título | Evidencia | Test | Estado |
+|----|--------|-----------|------|--------|
+| UC-01 | {título} | `archivo:línea` | `spec:línea` | ✅ |
+| UC-02 | {título} | — | — | ❌ |
+
+## Architecture Compliance
+| Regla | Estado | Notas |
+|-------|--------|-------|
+| Standalone | ✅/❌ | |
+| OnPush | ✅/❌ | |
+| Effects funcionales | ✅/❌ | |
+| input()/output() modernos | ✅/❌ | |
+| No inline templates | ✅/❌ | |
+| inject() | ✅/❌ | |
+| Control flow moderno | ✅/❌ | |
+| JSDoc en toSignal/computed | ✅/❌ | |
+| Constantes tipadas | ✅/❌ | |
+| Cero TODO/FIXME | ✅/❌ | |
+| SheetsApiService solo en Effects | ✅/❌ | |
+| SPREADSHEET_ID en env | ✅/❌ | |
+
+## Issues
 
 **CRITICAL** (bloquean archive):
-{Ninguno / lista}
+Ninguno / lista
 
 **WARNING** (recomendado corregir):
-{Ninguno / lista}
+Ninguno / lista
 
-**SUGGESTION**:
-{Ninguno / lista}
+## Reglas promovidas (F)
+| Patrón | Historial | Rule actualizada |
+|--------|-----------|-----------------|
+| {descripción} | APREND-{NNN} | `{archivo}.md:{línea}` |
 
-### Verdict
+## Veredicto
 {PASS / PASS WITH WARNINGS / FAIL}
 ```
 
 ## Reglas
-- CRITICAL issues bloquean el paso a `sdd-archive`.
-- No corregir issues en esta fase — solo reportar. El usuario decide qué hacer.
-- Un scenario solo es COMPLIANT si hay código que lo implementa Y existe un test que lo verifica.
+
+- Issues CRITICAL bloquean el archive.
+- No corregir issues en esta fase — solo reportar. El usuario decide.
+- Los historiales se actualizan **solo** si el veredicto es PASS o PASS WITH WARNINGS.
+- `project-map.json` se regenera siempre antes del archive.
+- Archive es la última acción de este paso — no un paso separado.

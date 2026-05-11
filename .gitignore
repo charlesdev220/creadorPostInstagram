@@ -47,3 +47,6 @@ test_output.jpg
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.sdd/
+docs/*
