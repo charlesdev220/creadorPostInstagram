@@ -1,0 +1,152 @@
+<div class="dashboard-layout">
+
+  <!-- ── Panel izquierdo: uploads ─────────────────────────────────── -->
+  <div class="glass-panel flex flex-col gap-4">
+    <h1 class="text-xl font-bold text-gradient">✦ Creador Posts Instagram</h1>
+
+    <app-image-upload
+      label="1. Imagen de referencia"
+      sublabel="Define la pose y el entorno para la escena."
+      placeholder="📷 Arrastrá tu imagen o hacé click"
+      [currentImage]="referenceImg()"
+      (fileSelected)="onReferenceUpload($event)"
+    />
+
+    <app-image-upload
+      label="2. Tu Avatar"
+      sublabel="El rostro e identidad visual de la modelo."
+      placeholder="👤 Subí la foto del avatar"
+      [currentImage]="avatarImg()"
+      [history]="savedAvatars()"
+      [activeImage]="avatarImg()"
+      (fileSelected)="onAvatarUpload($event)"
+      (historyItemSelected)="onSelectAvatar($event)"
+    />
+
+    <app-image-upload
+      label="3. El Bolso (Producto)"
+      sublabel="La imagen limpia del producto a publicitar."
+      placeholder="👜 Subí el bolso principal"
+      [currentImage]="bagImg()"
+      [history]="savedBags()"
+      [activeImage]="bagImg()"
+      (fileSelected)="onBagUpload($event)"
+      (historyItemSelected)="onSelectBag($event)"
+    />
+
+    <!-- Calidad -->
+    <div>
+      <p class="text-sm mb-1" style="color: var(--text-secondary);">Calidad de Salida</p>
+      <p class="text-xs mb-2" style="color: var(--text-secondary);">Las imágenes siempre serán en formato vertical (9:16).</p>
+      <select class="glass-input" (change)="onQualityChange($event)">
+        @for (opt of qualityOptionsList; track opt) {
+          <option [value]="opt" style="color: black;">{{ opt }}</option>
+        }
+      </select>
+    </div>
+
+    <button
+      class="primary-button"
+      [disabled]="!canGenerate() || isGenerating()"
+      (click)="onGenerate()"
+    >
+      @if (isGenerating()) { Generando Magia... } @else { 💫 Generar Nueva Imagen }
+    </button>
+
+    @if (generateError()) {
+      <p class="text-sm text-center" style="color: var(--color-accent-red);">{{ generateError() }}</p>
+    }
+  </div>
+
+  <!-- ── Panel derecho: resultados ────────────────────────────────── -->
+  <div class="glass-panel flex flex-col gap-4 animate-fade-in">
+    <h2 class="text-lg font-semibold">✨ Resultado Final</h2>
+
+    @if (!isGenerating() && !baseAnalysisJson()) {
+      <div class="flex flex-col items-center justify-center py-16 gap-3">
+        <span class="text-4xl">✦</span>
+        <p class="text-sm text-center" style="color: var(--text-secondary);">
+          Subí las 3 imágenes y hacé click en "Generar Nueva Imagen"
+        </p>
+      </div>
+    }
+
+    @if (isGenerating()) {
+      <div class="flex flex-col items-center justify-center py-16 gap-2">
+        <div class="spinner"></div>
+        <p class="text-sm" style="color: var(--text-secondary);">Analizando imagen con Gemini...</p>
+      </div>
+    }
+
+    @if (baseAnalysisJson()) {
+      <div class="flex flex-col gap-4">
+        <h3 class="font-semibold">📂 Variaciones en Masa</h3>
+        <p class="text-sm" style="color: var(--text-secondary);">
+          Estética base guardada. Subí nuevas referencias para forzar la pose manteniendo el estilo actual.
+        </p>
+
+        <div class="flex gap-2 flex-wrap">
+          <button class="glass-button" (click)="onToggleJson()">
+            {{ showJson() ? 'Ocultar JSON Base' : '👁️ Ver JSON Base Extraído' }}
+          </button>
+          <button class="glass-button" (click)="onCopyBaseJson()">
+            {{ copyFeedback() ? '¡Copiado!' : '📋 Copiar JSON Base' }}
+          </button>
+        </div>
+
+        @if (showJson()) {
+          <pre class="json-block">{{ baseAnalysisJson() | json }}</pre>
+        }
+
+        <app-image-upload
+          label="Nuevas Poses (Multiselección)"
+          placeholder="📂 Subí múltiples imágenes de referencia para batch"
+          [multiple]="true"
+          (fileSelected)="onBatchUpload($event)"
+        />
+
+        @if (batchReferences().length > 0) {
+          <p class="text-sm" style="color: var(--text-secondary);">
+            {{ batchReferences().length }} imagen(es) lista(s)
+          </p>
+          <div class="thumbnail-gallery">
+            @for (ref of batchReferences(); track $index) {
+              <img [src]="ref" alt="Referencia batch" class="thumbnail" (click)="onOpenFullscreen(ref)" />
+            }
+          </div>
+        }
+
+        <button
+          class="primary-button"
+          [disabled]="!canBatch()"
+          (click)="onBatchGenerate()"
+        >
+          @if (isBatchGenerating()) { ⚙️ Procesando variaciones... }
+          @else { ⚡ Generar {{ batchReferences().length }} Variaciones }
+        </button>
+
+        @if (batchResults().length > 0) {
+          <div class="flex flex-col gap-3 mt-2">
+            <h3 class="font-semibold">Resultados del Lote:</h3>
+            @for (result of batchResults(); track $index) {
+              <app-batch-result-card
+                [result]="result"
+                [index]="$index"
+                (openFullscreen)="onOpenFullscreen($event)"
+                (copyJson)="onCopyVariationJson($event)"
+              />
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- ── Fullscreen overlay ────────────────────────────────────────────── -->
+@if (fullScreenImage()) {
+  <div class="fullscreen-overlay" (click)="onCloseFullscreen()">
+    <img [src]="fullScreenImage()" alt="Vista completa" class="fullscreen-image" />
+  </div>
+}

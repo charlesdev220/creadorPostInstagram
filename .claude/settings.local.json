@@ -103,7 +103,19 @@
       "Bash(sed -n '1,50p' /Users/charles/Documents/apps/FinancePro/frontend/src/app/features/categories/services/category.service.ts)",
       "Bash(ng test *)",
       "Bash(mkdir -p /Users/charles/Documents/apps/FinancePro/.claude/commands/.legacy)",
-      "Bash(mv /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-explore.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-propose.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-design.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-tasks.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-apply.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-archive.md /Users/charles/Documents/apps/FinancePro/.claude/commands/.legacy/)"
+      "Bash(mv /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-explore.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-propose.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-design.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-tasks.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-apply.md /Users/charles/Documents/apps/FinancePro/.claude/commands/sdd-archive.md /Users/charles/Documents/apps/FinancePro/.claude/commands/.legacy/)",
+      "Bash(npm uninstall *)",
+      "Bash(npm info *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('exports', {}\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in deps.items\\(\\) if 'angular' in k.lower\\(\\)]\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=d.get\\('exports',{}\\); [print\\(k\\) for k in exports.keys\\(\\)]\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=d.get\\('exports',{}\\); [print\\(k,'->',v.get\\('default',''\\) if isinstance\\(v,dict\\) else v\\) for k,v in exports.items\\(\\) if 'testing' in k or 'test' in k]\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=d.get\\('exports',{}\\); [print\\(k,'->',v.get\\('default',''\\) if isinstance\\(v,dict\\) else v\\) for k,v in exports.items\\(\\) if 'testing' in k]\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('version:', d.get\\('version'\\)\\); print\\('peerDeps:', json.dumps\\(d.get\\('peerDependencies',{}\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=d.get\\('exports',{}\\); [print\\(k\\) for k in exports.keys\\(\\) if 'test' in k.lower\\(\\)]\")",
+      "Bash(echo \"EXIT_dashboard=$?\")",
+      "Bash(echo \"EXIT_upload=$?\")",
+      "Bash(echo \"EXIT_batch=$?\")"
     ]
   }
 }

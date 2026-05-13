@@ -1,0 +1,32 @@
+<div>
+  <p class="text-sm mb-1" style="color: var(--text-secondary);">{{ label() }}</p>
+  @if (sublabel()) {
+    <p class="text-xs mb-2" style="color: var(--text-secondary);">{{ sublabel() }}</p>
+  }
+  <label class="upload-area">
+    @if (currentImage()) {
+      <img [src]="currentImage()" alt="Preview" class="upload-preview" />
+    } @else {
+      <span class="text-sm" style="color: var(--text-secondary);">{{ placeholder() }}</span>
+    }
+    <input
+      type="file"
+      accept="image/*"
+      [multiple]="multiple()"
+      class="hidden"
+      (change)="fileSelected.emit($event)"
+    />
+  </label>
+  @if (history().length > 0) {
+    <div class="thumbnail-gallery mt-2">
+      @for (item of history(); track item) {
+        <img
+          [src]="item"
+          alt="Guardado"
+          [class]="item === activeImage() ? 'thumbnail thumbnail-active' : 'thumbnail'"
+          (click)="historyItemSelected.emit(item)"
+        />
+      }
+    </div>
+  }
+</div>

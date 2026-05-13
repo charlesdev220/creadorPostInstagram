@@ -1,0 +1,14 @@
+/* Excepción: layout de dos paneles no expresable solo con Tailwind en este contexto SSR */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  min-height: 100vh;
+}
+@media (max-width: 768px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
